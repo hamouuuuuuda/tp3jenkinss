@@ -1,37 +1,22 @@
 pipeline {
     agent any
-    
+    options {
+        gitHubConnection('github-token') // Reference your credentials
+    }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/yourusername/yourrepo.git'
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/master']],
+                    extensions: [],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/hamouuuuuuda/tp3jenkinss.git',
+                        credentialsId: 'github-token'
+                    ]]
+                ])
             }
         }
-        
-        stage('Build') {
-            steps {
-                sh './mvnw clean package'
-            }
-        }
-        
-        stage('Docker Build') {
-            steps {
-                script {
-                    docker.build("your-image-name")
-                }
-            }
-        }
-        
-        stage('Deploy with Docker Compose') {
-            steps {
-                sh 'docker-compose up -d'
-            }
-        }
-    }
-    
-    post {
-        always {
-            cleanWs()
-        }
+        // Rest of your pipeline...
     }
 }

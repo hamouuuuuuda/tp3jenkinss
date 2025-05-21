@@ -1,22 +1,31 @@
 pipeline {
     agent any
-    options {
-        gitHubConnection('github-token') // Reference your credentials
-    }
+
     stages {
         stage('Checkout') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/master']],
-                    extensions: [],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/hamouuuuuuda/tp3jenkinss.git',
-                        credentialsId: 'github-token'
-                    ]]
-                ])
+                checkout scm  // This will use the repo configured in Jenkins
             }
         }
-        // Rest of your pipeline...
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'  // For Maven projects
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                script {
+                    docker.build("tp3-jenkins-app")
+                }
+            }
+        }
+
+        stage('Deploy with Docker Compose') {
+            steps {
+                sh 'docker-compose up -d'
+            }
+        }
     }
 }
